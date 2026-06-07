@@ -1,0 +1,895 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#204e4a">
+  <link rel="manifest" href="manifest.webmanifest">
+  <title>Sistema Integrado de Formação, Extensão e Memória</title>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --paper: #fffdf8;
+      --card: #ffffff;
+      --ink: #1e2930;
+      --muted: #637381;
+      --line: #d8dfd8;
+      --green: #226b55;
+      --leaf: #e7f3eb;
+      --blue: #244f8f;
+      --sky: #e7eef8;
+      --red: #b42318;
+      --rose: #fde8e4;
+      --gold: #a76714;
+      --sun: #fff1ce;
+      --clay: #8a4b2a;
+      --clay-soft: #f3e7dd;
+      --shadow: 0 10px 24px rgba(34, 51, 40, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.45;
+    }
+
+    header {
+      background: #204e4a;
+      color: #fff;
+      padding: 28px 22px 18px;
+    }
+
+    header .wrap, main {
+      width: min(1240px, calc(100% - 28px));
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(25px, 4vw, 42px);
+      letter-spacing: 0;
+    }
+
+    header p {
+      max-width: 980px;
+      margin: 0;
+      color: #d7ede7;
+      font-size: 16px;
+    }
+
+    main { padding: 18px 0 54px; }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin: 0 0 16px;
+      padding: 10px;
+      background: rgba(246, 244, 239, 0.96);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      backdrop-filter: blur(8px);
+    }
+
+    button {
+      border: 1px solid #b9c6bf;
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+      padding: 8px 11px;
+    }
+
+    button.primary {
+      background: #204e4a;
+      border-color: #204e4a;
+      color: #fff;
+    }
+
+    button.danger {
+      border-color: #e7aaa3;
+      color: var(--red);
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 16px;
+    }
+
+    nav button {
+      background: #fff;
+      color: #27413b;
+    }
+
+    nav button.active {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .metric, section, .note-box, .day, .module-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric {
+      padding: 14px;
+      min-height: 118px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .metric strong {
+      display: block;
+      margin: 4px 0;
+      color: #173b36;
+      font-size: 28px;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    section {
+      margin: 16px 0;
+      overflow: hidden;
+    }
+
+    section h2 {
+      margin: 0;
+      padding: 13px 15px;
+      background: var(--leaf);
+      border-bottom: 1px solid var(--line);
+      color: #183b34;
+      font-size: 18px;
+    }
+
+    .section-body { padding: 15px; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .note-box {
+      padding: 14px;
+      background: var(--paper);
+      box-shadow: none;
+    }
+
+    .note-box h3, .module-card h3, .day h3 {
+      margin: 0 0 8px;
+      color: #183b34;
+      font-size: 16px;
+    }
+
+    .note-box p, .module-card p {
+      margin: 0 0 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f8faf7;
+      color: #3b4a54;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .priority {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .priority-select {
+      width: 118px;
+      border: 1px solid #b9c6bf;
+      border-radius: 6px;
+      padding: 6px 8px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      font-weight: 700;
+    }
+
+    .critica { background: var(--rose); color: var(--red); }
+    .alta { background: var(--sun); color: var(--gold); }
+    .media { background: var(--sky); color: var(--blue); }
+    .ok { background: var(--leaf); color: var(--green); }
+    .campo { background: var(--clay-soft); color: var(--clay); }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+
+    .today-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .today-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-left: 6px solid var(--green);
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .today-card h3 {
+      margin: 0 0 8px;
+      color: #183b34;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 220px;
+      resize: vertical;
+      border: 1px solid #b9c6bf;
+      border-radius: 6px;
+      padding: 10px;
+      font: inherit;
+      line-height: 1.45;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .agenda {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .day {
+      padding: 12px;
+      box-shadow: none;
+    }
+
+    .slot {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 8px;
+      padding: 7px 0;
+      border-top: 1px solid #edf1ed;
+    }
+
+    .slot:first-of-type { border-top: 0; }
+
+    .slot time {
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .image-panel img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .module-card {
+      padding: 13px;
+      box-shadow: none;
+    }
+
+    .search {
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border: 1px solid #b9c6bf;
+      border-radius: 6px;
+      font: inherit;
+    }
+
+    [contenteditable="true"] {
+      outline: 2px solid transparent;
+      border-radius: 4px;
+      min-height: 1em;
+    }
+
+    [contenteditable="true"]:focus {
+      background: #fffdf0;
+      outline-color: #d6a84f;
+      box-shadow: 0 0 0 3px rgba(214, 168, 79, 0.18);
+    }
+
+    @media (max-width: 980px) {
+      .dashboard, .two-col, .three-col, .agenda, .today-panel {
+        grid-template-columns: 1fr;
+      }
+
+      table { font-size: 13px; }
+      th, td { padding: 8px 6px; }
+      .toolbar { position: static; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1 contenteditable="true">Sistema Integrado de Formação, Extensão e Memória</h1>
+      <p contenteditable="true">Um espaço pessoal de organização acadêmica, pesquisa participante, extensão universitária, economia solidária, educação popular e memória viva da formação em Agroecologia na UFRPE.</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <button class="primary" type="button" data-action="save">Salvar alterações</button>
+      <button type="button" data-action="download">Baixar cópia HTML</button>
+      <button type="button" data-action="add-section">Abrir novo campo/seção</button>
+      <button type="button" data-action="print">Imprimir ou salvar PDF</button>
+      <button class="danger" type="button" data-action="reset">Restaurar original</button>
+    </div>
+
+    <nav aria-label="Módulos do sistema">
+      <button type="button" class="active" data-page-button="dashboard">Dashboard</button>
+      <button type="button" data-page-button="tarefas">Tarefas e Agenda</button>
+      <button type="button" data-page-button="campo">Memória de Campo</button>
+      <button type="button" data-page-button="sistematizacao">Sistematização</button>
+      <button type="button" data-page-button="formacao">Formação</button>
+      <button type="button" data-page-button="conceitos">Conceitos</button>
+      <button type="button" data-page-button="bibliografia">Bibliografia</button>
+      <button type="button" data-page-button="producao">Produção</button>
+      <button type="button" data-page-button="rede">Rede e Instituições</button>
+      <button type="button" data-page-button="memoria">Memória Institucional</button>
+    </nav>
+
+    <div id="dashboard" class="page active">
+      <div class="dashboard">
+        <div class="metric"><span contenteditable="true">Relatório para orientadora</span><strong contenteditable="true">11/06</strong><span contenteditable="true">Versão revisável do estágio.</span></div>
+        <div class="metric"><span contenteditable="true">Relatório final</span><strong contenteditable="true">26/06</strong><span contenteditable="true">Entrega final do estágio.</span></div>
+        <div class="metric"><span contenteditable="true">Paul Singer</span><strong contenteditable="true">15/06</strong><span contenteditable="true">Drive, bibliografia e materiais organizados.</span></div>
+        <div class="metric"><span contenteditable="true">Sistematização PPS</span><strong contenteditable="true">Set/Out</strong><span contenteditable="true">Leitura crítica em setembro; produto em outubro.</span></div>
+        <div class="metric"><span contenteditable="true">Registros de campo</span><strong id="fieldCount">0</strong><span contenteditable="true">Atualize após Ecofeira, RECAT, PET e Coopera.</span></div>
+      </div>
+
+      <section>
+        <h2 contenteditable="true">Leitura rápida do momento</h2>
+        <div class="section-body three-col">
+          <div class="note-box">
+            <h3 contenteditable="true">Prioridade formativa</h3>
+            <p contenteditable="true">Concluir a versão do relatório sem perder a dimensão crítica: Agroecologia, Educação Popular, Economia Solidária, ATER Agroecológica, Processos Grupais e Memória Biocultural.</p>
+          </div>
+          <div class="note-box">
+            <h3 contenteditable="true">Prioridade extensionista</h3>
+            <p contenteditable="true">Registrar as experiências da Ecofeira, RECAT, Instituto Coopera e Programa Paul Singer como memória de campo e material de reflexão.</p>
+          </div>
+          <div class="note-box">
+            <h3 contenteditable="true">Prioridade de sistematização</h3>
+            <p contenteditable="true">Qualificar diário de campo, bibliografia, sínteses de GTs e categorias analíticas para contribuir com a sistematização do Programa Paul Singer.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="tarefas" class="page">
+      <section>
+        <h2 contenteditable="true">Tarefas, prazos e prioridades</h2>
+        <div class="section-body">
+          <div class="actions"><button type="button" data-add-row="tarefasTable">Adicionar tarefa</button></div>
+          <table id="tarefasTable">
+            <thead><tr><th>Área</th><th>Tarefa</th><th>Responsável</th><th>Prazo</th><th>Prioridade</th><th>Situação</th><th>Pendências/observações</th></tr></thead>
+            <tbody>
+              <tr><td>Relatório de estágio</td><td>Enviar versão para orientadora</td><td>Augusto</td><td>11/06/2026</td><td><span class="priority critica">Crítica</span></td><td>Em andamento</td><td>Fechar versão revisável.</td></tr>
+              <tr><td>Relatório de estágio</td><td>Finalizar relatório completo</td><td>Augusto</td><td>26/06/2026</td><td><span class="priority critica">Crítica</span></td><td>Pendente</td><td>Entrega final.</td></tr>
+              <tr><td>Mestra Fernanda</td><td>Enviar agenda diária às 07:00</td><td>Augusto</td><td>Diário</td><td><span class="priority critica">Crítica</span></td><td>Recorrente</td><td>Atualizar logo cedo.</td></tr>
+              <tr><td>Programa Paul Singer</td><td>Organizar Drive e descrição do grupo de WhatsApp</td><td>Malu / Augusto / coletivo</td><td>15/06/2026</td><td><span class="priority alta">Alta</span></td><td>Pendente</td><td>Reunir bibliografia, revistas, vídeos, relatórios dos módulos e encontros nacionais.</td></tr>
+              <tr><td>Programa Paul Singer</td><td>Corrigir e atualizar diário de campo no Drive</td><td>Alzira, Horasa, Maurício, Augusto, Luciano e Malu</td><td>08/06/2026</td><td><span class="priority critica">Crítica</span></td><td>Pendente</td><td>Base para viabilizar a sistematização.</td></tr>
+              <tr><td>Programa Paul Singer</td><td>Reunir sínteses dos GTs no Drive</td><td>Malu e Augusto</td><td>06/06/2026</td><td><span class="priority alta">Alta</span></td><td>Verificar</td><td>GTs observados: 6, 13 e 10.</td></tr>
+              <tr><td>Programa Paul Singer</td><td>Ler sínteses dos GTs e definir uso</td><td>Malu, Augusto, Alzira e Horasa</td><td>20/06/2026</td><td><span class="priority alta">Alta</span></td><td>Pendente</td><td>Relacionar com diário de campo e entrevistas.</td></tr>
+              <tr><td>Programa Paul Singer</td><td>Roteiro de entrevista da coordenação nacional</td><td>Maurício e Luciano</td><td>12/06/2026</td><td><span class="priority alta">Alta</span></td><td>Pendente</td><td>Entrevistas até 25/06: Mundinha, Eliane Martins, Cláudio, Vanderlúcia, Sérgio Godóy.</td></tr>
+              <tr><td>Instituto Coopera</td><td>Criar calendário anual e mensal da Incubadora</td><td>Secretaria</td><td>14/06/2026</td><td><span class="priority alta">Alta</span></td><td>Pendente</td><td>Memória anual e atividades a executar.</td></tr>
+              <tr><td>Ecofeira / RECAT</td><td>Registrar atividades de terça-feira e acompanhamentos</td><td>Augusto</td><td>Semanal</td><td><span class="priority alta">Alta</span></td><td>Recorrente</td><td>Transformar registros em memória de campo.</td></tr>
+              <tr><td>Ecofeira</td><td>Oficina formativa: Ecofeira como empreendimento</td><td>Danielle e Augusto</td><td>A definir</td><td><span class="priority alta">Alta</span></td><td>Realizado</td><td>Avanços: Barracas I.</td></tr>
+              <tr><td>PET / Ecofeira</td><td>Reunião com PET para alinhar ações</td><td>Danielle e Augusto</td><td>11/06/2026</td><td><span class="priority critica">Crítica</span></td><td>Em andamento</td><td>Produto: documento escrito.</td></tr>
+              <tr><td>Ecofeira</td><td>Oficina formativa: intercâmbios de experiências</td><td>Danielle e Augusto</td><td>09/06/2026</td><td><span class="priority critica">Crítica</span></td><td>Em andamento</td><td>Eixos: Ecofeira como empreendimento; Autogestão; Funcionamento e responsabilidades; Releitura do Bext.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2 contenteditable="true">Critério de prioridade</h2>
+        <div class="section-body three-col">
+          <div class="note-box"><h3>Crítica</h3><p contenteditable="true">Prazo em até 48 horas, tarefa obrigatória, entrega institucional, agenda diária da Fernanda ou algo que bloqueia outras atividades.</p></div>
+          <div class="note-box"><h3>Alta</h3><p contenteditable="true">Prazo em até 7 dias, compromisso com outras pessoas, atividade de campo, reunião, oficina ou parte importante do relatório.</p></div>
+          <div class="note-box"><h3>Média/Baixa</h3><p contenteditable="true">Média: importante para formação, mas com prazo mais flexível. Baixa: organização, leitura complementar ou melhoria que pode esperar.</p></div>
+        </div>
+      </section>
+
+      <section>
+        <h2 contenteditable="true">Agenda sugerida</h2>
+        <div class="section-body agenda">
+          <div class="day"><h3>Rotina diária</h3><div class="slot"><time>05:00</time><span>Leitura, fichamento ou escrita orientada por tema.</span></div><div class="slot"><time>07:00</time><span>Enviar agenda da Mestra Fernanda.</span></div><div class="slot"><time>20:00</time><span>Produção, revisão do planejamento e sistematização do dia.</span></div></div>
+          <div class="day"><h3>Segunda, terça, quarta e sexta</h3><div class="slot"><time>Manhã/tarde</time><span>PET Políticas Públicas, exceto quintas.</span></div><div class="slot"><time>Terça</time><span>Ecofeira da Rural e registros de campo.</span></div><div class="slot"><time>Semanal</time><span>Oficinas de estudo do Programa Paul Singer.</span></div></div>
+        </div>
+      </section>
+
+      <section>
+        <h2 contenteditable="true">Agenda do dia e semana carregada</h2>
+        <div class="section-body">
+          <div class="today-panel">
+            <div class="today-card">
+              <h3 contenteditable="true">Destaque do dia</h3>
+              <p contenteditable="true"><strong>Regra de orientação:</strong> primeiro cumprir o que tem prazo, o que envolve outras pessoas e a agenda diária da Fernanda. Depois avançar leitura, fichamento e memória de campo.</p>
+              <p contenteditable="true"><strong>Hoje:</strong> clique aqui e escreva o foco principal do dia.</p>
+            </div>
+            <div class="today-card">
+              <h3 contenteditable="true">Perguntas de fechamento do dia</h3>
+              <p contenteditable="true">O que avancei? O que aprendi? O que ficou pendente? Que conceito novo apareceu? Qual registro de campo preciso fazer?</p>
+            </div>
+          </div>
+          <div class="actions"><button type="button" data-add-row="semanaTable">Adicionar item na semana</button></div>
+          <table id="semanaTable">
+            <thead><tr><th>Dia</th><th>Horário</th><th>Atividade</th><th>Frente</th><th>Prioridade</th><th>Observações</th></tr></thead>
+            <tbody>
+              <tr><td>Todos os dias</td><td>05:00-06:50</td><td>Estudo, leitura fichada ou escrita orientada</td><td>Formação acadêmica</td><td><span class="priority alta">Alta</span></td><td>Priorizar relatório até 11/06.</td></tr>
+              <tr><td>Todos os dias</td><td>07:00</td><td>Enviar agenda diária da Mestra Fernanda</td><td>Agenda Fernanda</td><td><span class="priority critica">Crítica</span></td><td>Imprescindível.</td></tr>
+              <tr><td>Segunda</td><td>08:00-12:00 / 14:00-17:00</td><td>PET Políticas Públicas</td><td>PET</td><td><span class="priority alta">Alta</span></td><td>Rotina fixa, exceto quinta.</td></tr>
+              <tr><td>Terça</td><td>A combinar</td><td>Ecofeira da Rural; comunicação da oficina em 09/06</td><td>Ecofeira</td><td><span class="priority critica">Crítica</span></td><td>Registrar campo, falas e encaminhamentos.</td></tr>
+              <tr><td>Quarta</td><td>08:00-12:00 / 14:00-17:00</td><td>PET Políticas Públicas; reunião PET em 11/06 se aplicável ao planejamento</td><td>PET / Ecofeira</td><td><span class="priority critica">Crítica</span></td><td>Alinhar ações e documento escrito.</td></tr>
+              <tr><td>Quinta</td><td>Manhã</td><td>Revisão e envio da versão do relatório para orientadora</td><td>Relatório de estágio</td><td><span class="priority critica">Crítica</span></td><td>Prazo 11/06.</td></tr>
+              <tr><td>Sexta</td><td>08:00-12:00 / 14:00-17:00</td><td>PET Políticas Públicas; ajustes do relatório e Coopera</td><td>PET / Coopera</td><td><span class="priority alta">Alta</span></td><td>Acompanhar retorno da orientadora.</td></tr>
+              <tr><td>Todos os dias</td><td>20:00-00:00</td><td>Produção, sistematização do dia e planejamento</td><td>Formação / Memória</td><td><span class="priority critica">Crítica</span></td><td>Registrar aprendizados e pendências.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2 contenteditable="true">Agenda diária da Mestra Fernanda</h2>
+        <div class="section-body">
+          <p contenteditable="true">Preencha ou edite os itens abaixo. Depois clique em gerar relatório para criar uma mensagem pronta para envio.</p>
+          <div class="actions">
+            <button type="button" data-add-row="fernandaTable">Adicionar item da Fernanda</button>
+            <button type="button" data-action="fernanda-report">Gerar relatório para envio</button>
+            <button type="button" data-action="copy-fernanda">Copiar relatório</button>
+          </div>
+          <table id="fernandaTable">
+            <thead><tr><th>Data</th><th>Horário</th><th>Compromisso/atividade</th><th>Local</th><th>Status</th><th>Observações</th></tr></thead>
+            <tbody>
+              <tr><td>Hoje</td><td>07:00</td><td>Enviar agenda do dia para Mestra Fernanda</td><td>WhatsApp / canal combinado</td><td><span class="priority critica">Crítica</span></td><td>Rotina imprescindível logo cedo.</td></tr>
+              <tr><td>Hoje</td><td>A preencher</td><td>A preencher com compromissos dela</td><td>A preencher</td><td><span class="priority media">Média</span></td><td>Ajustar diariamente.</td></tr>
+            </tbody>
+          </table>
+          <textarea id="fernandaReport" placeholder="O relatório pronto para envio aparecerá aqui."></textarea>
+        </div>
+      </section>
+    </div>
+
+    <div id="campo" class="page">
+      <section>
+        <h2 contenteditable="true">Memória de Campo</h2>
+        <div class="section-body">
+          <input class="search" type="search" placeholder="Pesquisar nos registros de campo..." data-search="campoTable">
+          <div class="actions"><button type="button" data-add-row="campoTable">Adicionar registro de campo</button></div>
+          <table id="campoTable">
+            <thead><tr><th>Data</th><th>Local</th><th>Participantes</th><th>Descrição</th><th>Falas importantes</th><th>Reflexões pessoais</th><th>Temas relacionados</th></tr></thead>
+            <tbody>
+              <tr><td>03/06/2026</td><td>Sala de reuniões do PPGADT</td><td>Horasa, Luciano, Alzira, Malu e Maurício</td><td>Reunião do coletivo Programa Paul Singer sobre sistematização, diário de campo, bibliografia e cronograma do livro.</td><td>A sistematização depende de diário de campo qualificado e registros da equipe.</td><td>O diário de campo é ferramenta de pesquisa, memória e formação política.</td><td>Economia Solidária; Sistematização; Educação Popular; Política Pública</td></tr>
+              <tr><td>Terças-feiras</td><td>Ecofeira da Rural</td><td>Feirantes, equipe, público, projetos</td><td>Acompanhamento das atividades e uso do espaço para divulgação, escuta e registro.</td><td>Inserir falas observadas após cada feira.</td><td>Relacionar prática de extensão com economia solidária e agroecologia.</td><td>Ecofeira; Agroecologia; Comercialização; Educação Popular</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <div id="sistematizacao" class="page">
+      <section>
+        <h2 contenteditable="true">Sistematização de Experiências</h2>
+        <div class="section-body">
+          <div class="actions"><button type="button" data-add-row="jaraTable">Adicionar experiência</button></div>
+          <table id="jaraTable">
+            <thead><tr><th>Experiência</th><th>O que aconteceu</th><th>Como aconteceu</th><th>Por que aconteceu</th><th>O que aprendemos</th><th>Lições para outras experiências</th><th>Categorias analíticas</th></tr></thead>
+            <tbody>
+              <tr><td>Sistematização PPS 2023-maio/2026</td><td>Processo de análise das formações com agentes territoriais, coordenações estaduais e equipe nacional.</td><td>Leitura de documentos, diário de campo, sínteses de GTs, entrevistas e oficinas de estudo.</td><td>Produzir reflexão crítica e inspirações para nova versão do Programa Paul Singer.</td><td>A memória histórica das políticas públicas, o local/territorial e a autogestão precisam ganhar mais visibilidade.</td><td>Registrar desde o início, organizar categorias e socializar textos em processo.</td><td>Economia popular; Autogestão; Agentes locais; Território; Educação Popular</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2 contenteditable="true">Cronograma da sistematização do Programa Paul Singer</h2>
+        <div class="section-body">
+          <table>
+            <thead><tr><th>Marco</th><th>Período/Prazo</th><th>Responsáveis</th><th>Observações</th></tr></thead>
+            <tbody>
+              <tr><td>Bibliografia do Programa reunida</td><td>Até 15/06/2026</td><td>Malu e coletivo</td><td>Incluir relatórios, revistas, vídeos e documentos do PPS.</td></tr>
+              <tr><td>Leitura de referenciais bibliográficos</td><td>02 a 30/06/2026</td><td>Coletivo</td><td>Oscar Jara e materiais de economia solidária, autogestão e memória histórica.</td></tr>
+              <tr><td>Entrevistas com coordenação nacional</td><td>04 a 25/06/2026</td><td>Maurício e Luciano</td><td>Roteiro até 12/06.</td></tr>
+              <tr><td>Revisão e classificação do diário de campo</td><td>08 a 17/06/2026</td><td>Alzira e Horasa</td><td>Classificar por categorias.</td></tr>
+              <tr><td>Oficina sobre diário, GTs e entrevistas</td><td>13/07/2026, 08h às 17h</td><td>Coletivo</td><td>Coordenação de Alzira e Horasa.</td></tr>
+              <tr><td>Leitura crítica da SENAES</td><td>Setembro/2026</td><td>Coletivo</td><td>Finalização para leitura crítica.</td></tr>
+              <tr><td>Cópia para leitura do livro</td><td>Outubro/2026</td><td>Coletivo</td><td>Produto livro/e-book sobre a sistematização.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <div id="formacao" class="page">
+      <section>
+        <h2 contenteditable="true">Formação Acadêmica e Temas de Estudo</h2>
+        <div class="section-body">
+          <div class="actions"><button type="button" data-add-row="formacaoTable">Adicionar tema</button></div>
+          <table id="formacaoTable">
+            <thead><tr><th>Tema</th><th>Conceitos estudados</th><th>Conceitos em construção</th><th>Leituras realizadas</th><th>Leituras pendentes</th><th>Autores</th><th>Reflexões</th></tr></thead>
+            <tbody>
+              <tr><td>Economia Solidária</td><td>Autogestão; economia popular; cooperação</td><td>Política pública de agentes locais; gestão territorial</td><td>Documentos do Programa Paul Singer</td><td>A construção do conhecimento em economia solidária; CFES NE</td><td>Paul Singer; Medeiros et al.; equipe PPS</td><td>Tema central da formação e da atuação extensionista.</td></tr>
+              <tr><td>Educação Popular</td><td>Diálogo; práxis; formação crítica</td><td>Metodologia político-pedagógica do PPS</td><td>Registros das formações</td><td>Textos de apoio para relatório</td><td>Paulo Freire; Oscar Jara</td><td>Base para atuar como educador popular.</td></tr>
+              <tr><td>ATER Agroecológica</td><td>Extensão rural; acompanhamento; território</td><td>ATER vinculada à economia solidária</td><td>Notas de estágio</td><td>Política Nacional de ATER e experiências agroecológicas</td><td>A definir</td><td>Conectar relatório com prática de campo.</td></tr>
+              <tr><td>Memória Biocultural</td><td>Memória; território; ancestralidade</td><td>Relação com processos grupais</td><td>Notas iniciais</td><td>Bibliografia específica</td><td>A definir</td><td>Ajuda a pensar agroecologia para além da produção.</td></tr>
+              <tr><td>Sistematização de Experiências</td><td>Experiência vivida; interpretação crítica; lições aprendidas</td><td>Categorias analíticas do PPS</td><td>Registro da reunião de 03/06</td><td>Oscar Jara, Para sistematizar experiências</td><td>Oscar Jara</td><td>Método para transformar prática em conhecimento.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <div id="conceitos" class="page">
+      <section>
+        <h2 contenteditable="true">Banco de Conceitos</h2>
+        <div class="section-body">
+          <input class="search" type="search" placeholder="Pesquisar conceitos..." data-search="conceitosTable">
+          <div class="actions"><button type="button" data-add-row="conceitosTable">Adicionar conceito</button></div>
+          <table id="conceitosTable">
+            <thead><tr><th>Conceito</th><th>Definição acadêmica</th><th>Explicação simples</th><th>Exemplo observado</th><th>Autor(es)</th><th>Onde encontrei</th></tr></thead>
+            <tbody>
+              <tr><td>Sistematização de experiências</td><td>Processo de interpretação crítica de uma experiência vivida para compreender sua lógica, aprendizagens e sentidos.</td><td>Olhar para o que aconteceu, entender por que aconteceu e tirar aprendizados úteis.</td><td>Sistematização do Programa Paul Singer entre 2023 e maio de 2026.</td><td>Oscar Jara</td><td>Reunião PPS 03/06/2026; bibliografia indicada.</td></tr>
+              <tr><td>Autogestão</td><td>Forma coletiva e democrática de gestão do trabalho, da produção e das decisões.</td><td>As pessoas envolvidas decidem juntas os rumos do empreendimento ou projeto.</td><td>Cooperativas de resíduos sólidos e experiências de economia solidária.</td><td>Paul Singer; documentos PPS</td><td>Programa Paul Singer; RECAT; Ecofeira.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <div id="bibliografia" class="page">
+      <section>
+        <h2 contenteditable="true">Banco Bibliográfico</h2>
+        <div class="section-body">
+          <input class="search" type="search" placeholder="Pesquisar bibliografia..." data-search="biblioTable">
+          <div class="actions"><button type="button" data-add-row="biblioTable">Adicionar referência</button></div>
+          <table id="biblioTable">
+            <thead><tr><th>Autor</th><th>Ano</th><th>Título</th><th>Tema</th><th>Tipo</th><th>Usado em</th><th>Observações</th></tr></thead>
+            <tbody>
+              <tr><td>Oscar Jara</td><td>2006</td><td>Para sistematizar experiências</td><td>Sistematização</td><td>Livro</td><td>PPS; relatório; disciplina</td><td>Ver se está no Drive ou na internet.</td></tr>
+              <tr><td>Medeiros et al.</td><td>A conferir</td><td>A construção do conhecimento em economia solidária</td><td>Economia Solidária</td><td>Texto/livro</td><td>Programa Paul Singer</td><td>Capítulos 1 e 2 citados na reunião.</td></tr>
+              <tr><td>Programa Paul Singer</td><td>2023-2026</td><td>Documentos político-pedagógicos e relatórios dos módulos</td><td>Formação de agentes</td><td>Documento institucional</td><td>Livro de sistematização</td><td>Reunir no Drive até 15/06.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <div id="producao" class="page">
+      <section>
+        <h2 contenteditable="true">Produção Acadêmica</h2>
+        <div class="section-body">
+          <div class="actions"><button type="button" data-add-row="producaoTable">Adicionar produção</button></div>
+          <table id="producaoTable">
+            <thead><tr><th>Produção</th><th>Etapas</th><th>% concluído</th><th>Referências utilizadas</th><th>Pendências</th><th>Prazo</th></tr></thead>
+            <tbody>
+              <tr><td>Relatório de Estágio</td><td>Sumário; escrita dos eixos; revisão; referências; anexos</td><td>25%</td><td>Economia Solidária; Educação Popular; ATER; Agroecologia; Memória Biocultural</td><td>Enviar versão à orientadora</td><td>11/06 e 26/06/2026</td></tr>
+              <tr><td>Livro de sistematização do PPS</td><td>Apresentação; introdução; 7 capítulos; considerações e inspirações</td><td>Em estruturação</td><td>Documentos PPS; Oscar Jara; economia solidária</td><td>Título, quantidade impressa, tamanho dos capítulos, projeto gráfico</td><td>Setembro/Outubro 2026</td></tr>
+              <tr><td>Capítulo 5 - Sujeitos da ação</td><td>Análise qualitativa do perfil dos agentes territoriais</td><td>Inicial</td><td>Dados de inscrição; documentos PPS</td><td>Definir recorte e escrita inicial</td><td>A definir</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <div id="rede" class="page">
+      <section>
+        <h2 contenteditable="true">Rede de Relações e Instituições</h2>
+        <div class="section-body">
+          <div class="actions"><button type="button" data-add-row="redeTable">Adicionar instituição/relação</button></div>
+          <table id="redeTable">
+            <thead><tr><th>Instituição</th><th>Projeto</th><th>Pessoas-chave</th><th>Contatos</th><th>Relação com minhas atividades</th><th>Próximos encaminhamentos</th></tr></thead>
+            <tbody>
+              <tr><td>UFRPE</td><td>Agroecologia / PET / Extensão</td><td>Orientadora; equipe PET; docentes</td><td>A preencher</td><td>Formação acadêmica e atuação extensionista</td><td>Alinhar relatório de estágio e agenda.</td></tr>
+              <tr><td>Instituto Coopera / INCUBACOOP</td><td>Incubação, economia solidária, agroecologia e políticas públicas</td><td>Horasa, Luciano, Maurício, Ana Flávia, Malu, Dani</td><td>contato@institutocoopera.org.br</td><td>Secretaria, memória institucional e projetos</td><td>Organizar Drive, calendário, relatório anual e comunicação.</td></tr>
+              <tr><td>Programa Paul Singer</td><td>Formação de agentes de economia solidária</td><td>Alzira, Horasa, Malu, Maurício, Luciano</td><td>Grupo do programa</td><td>Bolsista, estudo, formações e sistematização</td><td>Diário de campo, bibliografia, GTs e entrevistas.</td></tr>
+              <tr><td>RECAT</td><td>Rede de cooperativas de resíduos sólidos</td><td>A preencher</td><td>A preencher</td><td>Acompanhamento como assessor</td><td>Registrar demandas e processos grupais.</td></tr>
+              <tr><td>Ecofeira da Rural</td><td>Comercialização, agroecologia e economia solidária</td><td>Feirantes e equipe</td><td>A preencher</td><td>Campo de prática e divulgação</td><td>Registro semanal e materiais da incubadora.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <div id="memoria" class="page">
+      <section>
+        <h2 contenteditable="true">Memória Institucional</h2>
+        <div class="section-body two-col">
+          <div>
+            <div class="actions"><button type="button" data-add-row="memoriaTable">Adicionar memória institucional</button></div>
+            <table id="memoriaTable">
+              <thead><tr><th>Instituição/Frente</th><th>Missão ou finalidade</th><th>Eixos/atividades</th><th>Documentos e memórias</th><th>Pendências</th></tr></thead>
+              <tbody>
+                <tr><td>Instituto Coopera / INCUBACOOP</td><td>Fortalecer economia solidária, agroecologia e políticas públicas por ações integradas de ensino, pesquisa e extensão.</td><td>Agroecologia; Economia Solidária; Políticas Públicas; Resíduos Sólidos</td><td>Imagem institucional, calendário, relatório anual, portfólio de projetos</td><td>Organizar Drive, logo LABOR, 4 bandeiras e relatório anual.</td></tr>
+                <tr><td>Programa Paul Singer</td><td>Formação de agentes de economia solidária e reflexão crítica sobre política pública territorial.</td><td>Formações; diário de campo; livro de sistematização; entrevistas; GTs</td><td>Relatórios dos módulos, documentos metodológicos, vídeos, revistas</td><td>Organizar bibliografia e diário de campo.</td></tr>
+                <tr><td>Ecofeira da Rural</td><td>Espaço de comercialização, extensão, agroecologia, educação popular e economia solidária.</td><td>Feira semanal, comunicação, registros e formação</td><td>Fotos, relatos, materiais da incubadora</td><td>Criar modelo de registro semanal.</td></tr>
+                <tr><td>RECAT</td><td>Rede de cooperativas de resíduos sólidos.</td><td>Assessoria, processos grupais, economia solidária e resíduos</td><td>Atas, registros, contatos e demandas</td><td>Mapear pessoas-chave e pendências.</td></tr>
+                <tr><td>PET Políticas Públicas</td><td>Formação acadêmica e atuação em políticas públicas.</td><td>Rotina de manhã e tarde, exceto quintas</td><td>Registros de atividades</td><td>Integrar agenda com relatório e estudos.</td></tr>
+                <tr><td>AGROFLOR</td><td>A preencher</td><td>A preencher</td><td>A preencher</td><td>A preencher</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="image-panel">
+            <img src="instituto_coopera_incubacoop.jpeg" alt="Painel institucional do Instituto Coopera e INCUBACOOP UFRPE">
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 contenteditable="true">Síntese do Instituto Coopera / INCUBACOOP</h2>
+        <div class="section-body three-col">
+          <div class="module-card"><h3>Missão</h3><p contenteditable="true">Fortalecer a economia solidária, a agroecologia e as políticas públicas por meio de ações integradas de ensino, pesquisa e extensão, promovendo incubação de iniciativas coletivas, formação crítica e desenvolvimento de territórios sustentáveis, justos e democráticos.</p></div>
+          <div class="module-card"><h3>Finalidade</h3><p contenteditable="true">Ser centro de referência em associativismo, cooperativismo, economia solidária, agroecologia, meio ambiente e sustentabilidade, apoiando grupos populares e territórios na organização do trabalho associativo e econômico solidário.</p></div>
+          <div class="module-card"><h3>Núcleos e territórios</h3><p contenteditable="true">Núcleo Agrofamiliar, INCUBACOOP, LABOR, Observatório de Economia Solidária de PE e PET Políticas Públicas. Territórios: rural, agroecologia e resíduos sólidos.</p></div>
+        </div>
+      </section>
+    </div>
+
+    <div id="customSections"></div>
+  </main>
+
+  <script>
+    const storageKey = "sistema-integrado-formacao-memoria-v3-final";
+    const originalBody = document.body.innerHTML;
+
+    function makeEditable(root = document) {
+      root.querySelectorAll("td, .slot span, .slot time, .day h3, .module-card h3, .module-card p, .note-box h3, .note-box p").forEach((el) => {
+        if (!el.querySelector(".priority") && !el.querySelector("button") && !el.querySelector("img")) el.contentEditable = "true";
+      });
+    }
+
+    function priorityClass(value) {
+      const normalized = String(value || "").toLowerCase();
+      if (normalized.includes("cr")) return "critica";
+      if (normalized.includes("alt")) return "alta";
+      if (normalized.includes("baix")) return "ok";
+      return "media";
+    }
+
+    function enhancePriorityControls(root = document) {
+      root.querySelectorAll("span.priority").forEach((span) => {
+        const current = span.textContent.trim() || "Média";
+        const select = document.createElement("select");
+        select.className = `priority-select ${priorityClass(current)}`;
+        ["Crítica", "Alta", "Média", "Baixa", "Concluída"].forEach((optionText) => {
+          const option = document.createElement("option");
+          option.value = optionText;
+          option.textContent = optionText;
+          if (optionText.toLowerCase() === current.toLowerCase()) option.selected = true;
+          select.appendChild(option);
+        });
+        span.replaceWith(select);
+      });
+
+      root.querySelectorAll("select.priority-select").forEach((select) => {
+        select.onchange = () => {
+          select.className = `priority-select ${priorityClass(select.value)}`;
+        };
+      });
+    }
+
+    function syncSelectState() {
+      document.querySelectorAll("select").forEach((select) => {
+        select.querySelectorAll("option").forEach((option) => {
+          if (option.value === select.value) option.setAttribute("selected", "selected");
+          else option.removeAttribute("selected");
+        });
+      });
+    }
+
+    function updateFieldCount() {
+      const table = document.querySelector("#campoTable tbody");
+      const count = table ? table.querySelectorAll("tr").length : 0;
+      const target = document.querySelector("#fieldCount");
+      if (target) target.textContent = String(count);
+    }
+
+    function bindSearch(root = document) {
+      root.querySelectorAll("[data-search]").forEach((input) => {
+        input.oninput = () => {
+          const table = document.getElementById(input.dataset.search);
+          const term = input.value.trim().toLowerCase();
+          table.querySelectorAll("tbody tr").forEach((row) => {
+            row.style.display = row.textContent.toLowerCase().includes(term) ? "" : "none";
+          });
+        };
+      });
+    }
+
+    function activatePage(id) {
+      document.querySelectorAll(".page").forEach((page) => page.classList.toggle("active", page.id === id));
+      document.querySelectorAll("[data-page-button]").forEach((button) => button.classList.toggle("active", button.dataset.pageButton === id));
+    }
+
+    function addRow(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      const columnCount = table.querySelectorAll("thead th").length;
+      const row = document.createElement("tr");
+      for (let i = 0; i < columnCount; i++) {
+        const cell = document.createElement("td");
+        cell.contentEditable = "true";
+        cell.textContent = i === 0 ? "Novo registro" : "A preencher";
+        row.appendChild(cell);
+      }
+      table.querySelector("tbody").appendChild(row);
+      if (table.querySelector("thead").textContent.toLowerCase().includes("prioridade") || tableId === "fernandaTable") {
+        const priorityColumn = Array.from(table.querySelectorAll("thead th")).findIndex((th) => th.textContent.toLowerCase().includes("prioridade") || th.textContent.toLowerCase().includes("status"));
+        if (priorityColumn >= 0 && row.children[priorityColumn]) {
+          row.children[priorityColumn].innerHTML = '<select class="priority-select media"><option>Crítica</option><option>Alta</option><option selected>Média</option><option>Baixa</option><option>Concluída</option></select>';
+          enhancePriorityControls(row);
+        }
+      }
+      updateFieldCount();
+    }
+
+    function tableRows(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) return [];
+      return Array.from(table.querySelectorAll("tbody tr")).map((row) => {
+        return Array.from(row.children).map((cell) => {
+          const select = cell.querySelector("select");
+          return select ? select.value.trim() : cell.textContent.trim();
+        });
+      });
+    }
+
+    function generateFernandaReport() {
+      const rows = tableRows("fernandaTable");
+      const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" });
+      const lines = [];
+      lines.push(`Bom dia, Mestra Fernanda. Segue a agenda de ${today}:`);
+      lines.push("");
+      rows.forEach((cells, index) => {
+        const [data, horario, atividade, local, status, obs] = cells;
+        lines.push(`${index + 1}. ${horario || "Horário a definir"} - ${atividade || "Atividade a preencher"}`);
+        if (local) lines.push(`   Local/canal: ${local}`);
+        if (status) lines.push(`   Status/prioridade: ${status}`);
+        if (obs) lines.push(`   Observações: ${obs}`);
+      });
+      lines.push("");
+      lines.push("Pendências e ajustes podem ser atualizados ao longo do dia.");
+      const textarea = document.getElementById("fernandaReport");
+      if (textarea) textarea.value = lines.join("\n");
+    }
+
+    function addCustomSection() {
+      const title = prompt("Nome do novo campo/seção:", "Novo campo de acompanhamento");
+      if (!title) return;
+      const section = document.createElement("section");
+      const tableId = `custom-${Date.now()}`;
+      section.innerHTML = `
+        <h2 contenteditable="true">${title}</h2>
+        <div class="section-body">
+          <div class="actions"><button type="button" data-add-row="${tableId}">Adicionar linha</button></div>
+          <table id="${tableId}">
+            <thead><tr><th>Data</th><th>Descrição</th><th>Responsável</th><th>Pendências</th><th>Observações</th></tr></thead>
+            <tbody><tr><td contenteditable="true">A preencher</td><td contenteditable="true">A preencher</td><td contenteditable="true">A preencher</td><td contenteditable="true">A preencher</td><td contenteditable="true">A preencher</td></tr></tbody>
+          </table>
+        </div>`;
+      document.querySelector("#customSections").appendChild(section);
+      makeEditable(section);
+    }
+
+    const saved = localStorage.getItem(storageKey);
+    if (saved) document.body.innerHTML = saved;
+    makeEditable();
+    enhancePriorityControls();
+    bindSearch();
+    updateFieldCount();
+    if ("serviceWorker" in navigator && location.protocol !== "file:") {
+      navigator.serviceWorker.register("service-worker.js").catch(() => {});
+    }
+
+    document.addEventListener("click", (event) => {
+      const pageButton = event.target.closest("[data-page-button]");
+      if (pageButton) activatePage(pageButton.dataset.pageButton);
+
+      const addButton = event.target.closest("[data-add-row]");
+      if (addButton) addRow(addButton.dataset.addRow);
+
+      const action = event.target.closest("[data-action]")?.dataset.action;
+      if (action === "save") {
+        syncSelectState();
+        localStorage.setItem(storageKey, document.body.innerHTML);
+        alert("Alterações salvas neste navegador.");
+      }
+      if (action === "download") {
+        const doc = "<!doctype html>\n" + document.documentElement.outerHTML;
+        const blob = new Blob([doc], { type: "text/html;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "sistema_integrado_formacao_memoria_editado.html";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      }
+      if (action === "add-section") addCustomSection();
+      if (action === "fernanda-report") generateFernandaReport();
+      if (action === "copy-fernanda") {
+        generateFernandaReport();
+        const textarea = document.getElementById("fernandaReport");
+        if (textarea) {
+          textarea.select();
+          navigator.clipboard?.writeText(textarea.value);
+        }
+      }
+      if (action === "print") window.print();
+      if (action === "reset") {
+        if (confirm("Restaurar a versão original? As alterações salvas neste navegador serão apagadas.")) {
+          localStorage.removeItem(storageKey);
+          document.body.innerHTML = originalBody;
+          makeEditable();
+          enhancePriorityControls();
+          bindSearch();
+          updateFieldCount();
+        }
+      }
+    });
+  </script>
+</body>
+</html>

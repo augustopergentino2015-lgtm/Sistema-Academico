@@ -1,0 +1,18 @@
+{
+  "name": "Sistema de Formação e Memória",
+  "short_name": "Formação",
+  "description": "Sistema pessoal de formação acadêmica, extensão universitária, pesquisa participante e memória.",
+  "start_url": "sistema_integrado_formacao_memoria_agroecologia.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f4ef",
+  "theme_color": "#204e4a",
+  "icons": [
+    {
+      "src": "icone-sistema.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

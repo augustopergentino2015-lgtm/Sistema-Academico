@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gerenciador academico e extensionista</title>
+  <style>
+    :root {
+      --bg: #f7f4ef;
+      --panel: #ffffff;
+      --ink: #1f2933;
+      --muted: #64748b;
+      --line: #d9e2ec;
+      --green: #256f5b;
+      --blue: #2563a9;
+      --red: #b42318;
+      --amber: #b7791f;
+      --soft-green: #e5f2ec;
+      --soft-blue: #e7f0fb;
+      --soft-red: #fce8e6;
+      --soft-amber: #fff4d6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.45;
+    }
+
+    header {
+      background: #204e4a;
+      color: #fff;
+      padding: 28px 24px;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: clamp(24px, 4vw, 38px);
+      letter-spacing: 0;
+    }
+
+    header p {
+      margin: 0;
+      max-width: 900px;
+      color: #d8eee8;
+      font-size: 16px;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 24px auto 48px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .metric, section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .metric {
+      padding: 16px;
+      min-height: 110px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 30px;
+      margin: 4px 0;
+      color: #173b36;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    section {
+      margin: 18px 0;
+      overflow: hidden;
+    }
+
+    section h2 {
+      margin: 0;
+      padding: 14px 16px;
+      background: #edf5f2;
+      border-bottom: 1px solid var(--line);
+      font-size: 18px;
+    }
+
+    .section-body {
+      padding: 16px;
+    }
+
+    .priority {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .critica { background: var(--soft-red); color: var(--red); }
+    .alta { background: var(--soft-amber); color: var(--amber); }
+    .media { background: var(--soft-blue); color: var(--blue); }
+    .ok { background: var(--soft-green); color: var(--green); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #334155;
+      background: #f8fafc;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .note {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0 0 10px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 16px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(247, 244, 239, 0.94);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      backdrop-filter: blur(8px);
+    }
+
+    button {
+      border: 1px solid #b6c4d1;
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+      padding: 8px 11px;
+    }
+
+    button.primary {
+      background: #204e4a;
+      border-color: #204e4a;
+      color: #fff;
+    }
+
+    button.danger {
+      background: #fff;
+      border-color: #e7aaa3;
+      color: var(--red);
+    }
+
+    [contenteditable="true"] {
+      outline: 2px solid transparent;
+      border-radius: 4px;
+    }
+
+    [contenteditable="true"]:focus {
+      background: #fffdf5;
+      outline-color: #d6a84f;
+      box-shadow: 0 0 0 3px rgba(214, 168, 79, 0.18);
+    }
+
+    .agenda {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .day {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .day h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      color: #173b36;
+    }
+
+    .slot {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 8px;
+      padding: 7px 0;
+      border-top: 1px solid #eef2f7;
+      font-size: 14px;
+    }
+
+    .slot:first-of-type { border-top: 0; }
+
+    .slot time {
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    @media (max-width: 900px) {
+      .grid, .agenda { grid-template-columns: 1fr; }
+      table { font-size: 13px; }
+      th, td { padding: 8px 6px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 contenteditable="true">Gerenciador academico e extensionista</h1>
+    <p contenteditable="true">Planejamento integrado para relatorio de estagio, estudos, Programa Paul Singer, Ecofeira da Rural, RECAT, Instituto Coopera e agenda diaria.</p>
+  </header>
+
+  <main>
+    <div class="toolbar" aria-label="Ferramentas de edicao">
+      <button class="primary" type="button" id="savePage">Salvar alteracoes</button>
+      <button type="button" id="addTask">Adicionar tarefa</button>
+      <button type="button" id="downloadHtml">Baixar copia HTML</button>
+      <button class="danger" type="button" id="resetPage">Restaurar original</button>
+    </div>
+
+    <div class="grid" aria-label="Resumo">
+      <div class="metric">
+        <span contenteditable="true">Prioridade imediata</span>
+        <strong contenteditable="true">11/06</strong>
+        <span contenteditable="true">Enviar versao do relatorio para a orientadora.</span>
+      </div>
+      <div class="metric">
+        <span contenteditable="true">Entrega final</span>
+        <strong contenteditable="true">26/06</strong>
+        <span contenteditable="true">Relatorio final de estagio pronto.</span>
+      </div>
+      <div class="metric">
+        <span contenteditable="true">Rotina diaria</span>
+        <strong contenteditable="true">07:00</strong>
+        <span contenteditable="true">Enviar agenda da Mestra Fernanda.</span>
+      </div>
+      <div class="metric">
+        <span contenteditable="true">Blocos de estudo</span>
+        <strong contenteditable="true">05h + 20h</strong>
+        <span contenteditable="true">Leitura cedo; escrita e revisao a noite.</span>
+      </div>
+    </div>
+
+    <section>
+      <h2 contenteditable="true">Plano de ataque desta semana</h2>
+      <div class="section-body">
+        <p class="note" contenteditable="true">Ate 11/06/2026, cursos curtos e leituras extras entram apenas se o bloco minimo do relatorio estiver feito.</p>
+        <table id="taskTable">
+          <thead>
+            <tr>
+              <th>Area</th>
+              <th>Tarefa</th>
+              <th>Prazo</th>
+              <th>Prioridade</th>
+              <th>Situacao</th>
+              <th>Observacoes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td contenteditable="true">Relatorio de estagio</td>
+              <td contenteditable="true">Enviar versao revisavel para a orientadora</td>
+              <td contenteditable="true">11/06/2026</td>
+              <td><span class="priority critica">Critica</span></td>
+              <td contenteditable="true">Em andamento</td>
+              <td contenteditable="true">Fechar texto com ATER agroecologica, Educacao Popular, Economia Solidaria, Agroecologia e Memoria Biocultural.</td>
+            </tr>
+            <tr>
+              <td contenteditable="true">Relatorio de estagio</td>
+              <td contenteditable="true">Finalizar relatorio completo</td>
+              <td contenteditable="true">26/06/2026</td>
+              <td><span class="priority critica">Critica</span></td>
+              <td contenteditable="true">Pendente</td>
+              <td contenteditable="true">Depois da orientacao, revisar normas, anexos e referencias.</td>
+            </tr>
+            <tr>
+              <td contenteditable="true">Mestra Fernanda</td>
+              <td contenteditable="true">Enviar agenda diaria as 07:00</td>
+              <td contenteditable="true">Diario</td>
+              <td><span class="priority critica">Critica</span></td>
+              <td contenteditable="true">Recorrente</td>
+              <td contenteditable="true">Manter uma versao simples: compromissos, horarios, pendencias e observacoes.</td>
+            </tr>
+            <tr>
+              <td contenteditable="true">Ecofeira / Paul Singer</td>
+              <td contenteditable="true">Acompanhar atividades de terca-feira</td>
+              <td contenteditable="true">Toda terca</td>
+              <td><span class="priority alta">Alta</span></td>
+              <td contenteditable="true">Recorrente</td>
+              <td contenteditable="true">Registrar aprendizados, contatos, fotos, demandas e encaminhamentos.</td>
+            </tr>
+            <tr>
+              <td contenteditable="true">Instituto Coopera</td>
+              <td contenteditable="true">Criar calendario anual e mensal da incubadora</td>
+              <td contenteditable="true">14/06/2026</td>
+              <td><span class="priority alta">Alta</span></td>
+              <td contenteditable="true">Pendente</td>
+              <td contenteditable="true">Separar memoria anual e atividades mensais a executar.</td>
+            </tr>
+            <tr>
+              <td contenteditable="true">Instituto Coopera</td>
+              <td contenteditable="true">Organizar Drive da incubadora</td>
+              <td contenteditable="true">20/06/2026</td>
+              <td><span class="priority alta">Alta</span></td>
+              <td contenteditable="true">Pendente</td>
+              <td contenteditable="true">Aguardar acesso, senha e materiais.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2 contenteditable="true">Agenda sugerida de 08/06 a 14/06</h2>
+      <div class="section-body agenda">
+        <div class="day">
+          <h3 contenteditable="true">Segunda, 08/06</h3>
+          <div class="slot"><time contenteditable="true">05:00</time><span contenteditable="true">Leitura fichada: Economia Solidaria e Educacao Popular.</span></div>
+          <div class="slot"><time contenteditable="true">07:00</time><span contenteditable="true">Enviar agenda da Mestra Fernanda.</span></div>
+          <div class="slot"><time contenteditable="true">08:00</time><span contenteditable="true">PET Politicas Publicas.</span></div>
+          <div class="slot"><time contenteditable="true">20:00</time><span contenteditable="true">Escrever introducao, objetivos e estrutura do relatorio.</span></div>
+        </div>
+        <div class="day">
+          <h3 contenteditable="true">Terca, 09/06</h3>
+          <div class="slot"><time contenteditable="true">05:00</time><span contenteditable="true">Escrever eixo ATER agroecologica.</span></div>
+          <div class="slot"><time contenteditable="true">07:00</time><span contenteditable="true">Enviar agenda da Mestra Fernanda.</span></div>
+          <div class="slot"><time contenteditable="true">A combinar</time><span contenteditable="true">Ecofeira da Rural: acompanhamento e registro.</span></div>
+          <div class="slot"><time contenteditable="true">20:00</time><span contenteditable="true">Escrever eixo Economia Solidaria.</span></div>
+        </div>
+        <div class="day">
+          <h3 contenteditable="true">Quarta, 10/06</h3>
+          <div class="slot"><time contenteditable="true">05:00</time><span contenteditable="true">Escrever eixo Educacao Popular.</span></div>
+          <div class="slot"><time contenteditable="true">07:00</time><span contenteditable="true">Enviar agenda da Mestra Fernanda.</span></div>
+          <div class="slot"><time contenteditable="true">08:00</time><span contenteditable="true">PET Politicas Publicas.</span></div>
+          <div class="slot"><time contenteditable="true">20:00</time><span contenteditable="true">Unificar texto e revisar coerencia do relatorio.</span></div>
+        </div>
+        <div class="day">
+          <h3 contenteditable="true">Quinta, 11/06</h3>
+          <div class="slot"><time contenteditable="true">05:00</time><span contenteditable="true">Revisao final da versao para orientadora.</span></div>
+          <div class="slot"><time contenteditable="true">07:00</time><span contenteditable="true">Enviar agenda da Mestra Fernanda.</span></div>
+          <div class="slot"><time contenteditable="true">Manha</time><span contenteditable="true">Enviar relatorio para a orientadora.</span></div>
+          <div class="slot"><time contenteditable="true">20:00</time><span contenteditable="true">Registrar pendencias e preparar proximos ajustes.</span></div>
+        </div>
+        <div class="day">
+          <h3 contenteditable="true">Sexta, 12/06</h3>
+          <div class="slot"><time contenteditable="true">05:00</time><span contenteditable="true">Leitura leve e fichamento de apoio.</span></div>
+          <div class="slot"><time contenteditable="true">07:00</time><span contenteditable="true">Enviar agenda da Mestra Fernanda.</span></div>
+          <div class="slot"><time contenteditable="true">08:00</time><span contenteditable="true">PET Politicas Publicas.</span></div>
+          <div class="slot"><time contenteditable="true">20:00</time><span contenteditable="true">Acompanhar retorno da orientadora e tarefas do Coopera.</span></div>
+        </div>
+        <div class="day">
+          <h3 contenteditable="true">Sabado e domingo</h3>
+          <div class="slot"><time contenteditable="true">05:00</time><span contenteditable="true">Revisar planejamento e organizar fichamentos.</span></div>
+          <div class="slot"><time contenteditable="true">07:00</time><span contenteditable="true">Enviar agenda da Mestra Fernanda.</span></div>
+          <div class="slot"><time contenteditable="true">20:00</time><span contenteditable="true">Atualizar pendencias, calendario e tarefas da semana seguinte.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 contenteditable="true">Frentes do Instituto Coopera</h2>
+      <div class="section-body">
+        <table>
+          <thead>
+            <tr>
+              <th>Eixo</th>
+              <th>Encaminhamento</th>
+              <th>Responsavel</th>
+              <th>Prazo</th>
+              <th>Pendencia</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td contenteditable="true">Secretaria</td>
+              <td contenteditable="true">Relatorio anual das acoes executadas pelo Instituto/Incubadora.</td>
+              <td contenteditable="true">Secretaria</td>
+              <td contenteditable="true">31/07/2026</td>
+              <td contenteditable="true">Levantar acoes em andamento.</td>
+            </tr>
+            <tr>
+              <td contenteditable="true">Secretaria</td>
+              <td contenteditable="true">Pegar contato com a Comunicacao da Rural.</td>
+              <td contenteditable="true">Augusto</td>
+              <td contenteditable="true">12/06/2026</td>
+              <td contenteditable="true">Confirmar canal correto.</td>
+            </tr>
+            <tr>
+              <td contenteditable="true">Comunicacao</td>
+              <td contenteditable="true">Construir linha do tempo da incubadora.</td>
+              <td contenteditable="true">Equipe comunicacao</td>
+              <td contenteditable="true">20/06/2026</td>
+              <td contenteditable="true">Resgatar memoria e materiais antigos.</td>
+            </tr>
+            <tr>
+              <td contenteditable="true">Grupo de estudo</td>
+              <td contenteditable="true">Encontros quinzenais das 08h as 11h.</td>
+              <td contenteditable="true">Grupo de estudo</td>
+              <td contenteditable="true">19/06, 03/07, 17/07, 31/07</td>
+              <td contenteditable="true">Sala CEGOE, grupo de WhatsApp e certificacao.</td>
+            </tr>
+            <tr>
+              <td contenteditable="true">Captacao</td>
+              <td contenteditable="true">Monitoramento semanal de editais.</td>
+              <td contenteditable="true">Equipe captacao</td>
+              <td contenteditable="true">Semanal</td>
+              <td contenteditable="true">Criar documento-base de editais.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2 contenteditable="true">Orientacao de uso</h2>
+      <div class="section-body">
+        <p contenteditable="true">Use este arquivo como painel de consulta rapida. Ao final de cada noite, marque o que avancou, registre pendencias e ajuste o dia seguinte. A prioridade ate 11/06/2026 e produzir uma versao enviavel do relatorio, mesmo que ainda nao esteja perfeita.</p>
+        <p contenteditable="true">O link do Drive da Ecofeira nao retornou dados publicos pesquisaveis. Quando houver acesso, os arquivos podem ser incorporados nesta estrutura como memoria, registros de campo e tarefas.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const storageKey = "gerenciador-academico-extensionista-html";
+    const originalHtml = document.body.innerHTML;
+
+    function markEditableCells(row) {
+      row.querySelectorAll("td").forEach((cell) => {
+        if (!cell.querySelector(".priority")) cell.contentEditable = "true";
+      });
+    }
+
+    document.querySelectorAll("tbody tr").forEach(markEditableCells);
+
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      document.body.innerHTML = saved;
+      document.querySelectorAll("tbody tr").forEach(markEditableCells);
+    }
+
+    document.addEventListener("click", (event) => {
+      if (event.target.id === "savePage") {
+        localStorage.setItem(storageKey, document.body.innerHTML);
+        alert("Alteracoes salvas neste navegador.");
+      }
+
+      if (event.target.id === "resetPage") {
+        if (confirm("Restaurar a versao original? As alteracoes salvas neste navegador serao apagadas.")) {
+          localStorage.removeItem(storageKey);
+          document.body.innerHTML = originalHtml;
+          document.querySelectorAll("tbody tr").forEach(markEditableCells);
+        }
+      }
+
+      if (event.target.id === "addTask") {
+        const tbody = document.querySelector("#taskTable tbody");
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td contenteditable="true">Nova area</td>
+          <td contenteditable="true">Nova tarefa</td>
+          <td contenteditable="true">Prazo</td>
+          <td><span class="priority media">Media</span></td>
+          <td contenteditable="true">Pendente</td>
+          <td contenteditable="true">Observacoes</td>
+        `;
+        tbody.appendChild(row);
+      }
+
+      if (event.target.id === "downloadHtml") {
+        const doc = "<!doctype html>\\n" + document.documentElement.outerHTML;
+        const blob = new Blob([doc], { type: "text/html;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "gerenciador_academico_extensao_agroecologia_editado.html";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      }
+    });
+  </script>
+</body>
+</html>
